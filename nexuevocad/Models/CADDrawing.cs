@@ -8,11 +8,11 @@ namespace nexuevocad.Models
     public class CADDrawing
     {
         public string url { get; set; }
-        public decimal X { get; set; }
-        public decimal Y { get; set; }
-        public decimal Z { get; set; }
-        public decimal Volume { get; set; }
-        public decimal Surfacearea { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Z { get; set; }
+        public double Volume { get; set; }
+        public double Surfacearea { get; set; }
 
         public string Image_top { get; set; }
         public string Image_bottom { get; set; }
