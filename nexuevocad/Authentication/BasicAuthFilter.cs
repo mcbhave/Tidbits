@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -30,22 +31,33 @@ namespace Tidbits.Authentication
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-              
 
             IConfigurationBuilder builder = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
-             //yardillocore.Authorization.OnBasicAPIAuth(context, builder);
-            yardillocore.Authorization.OnRapidHubAuth(context, builder);
+            IConfigurationRoot configuration = builder.Build();
 
-            //IConfigurationRoot configuration = builder.Build();
-            //var user = configuration.GetSection("DatabaseSettings").GetSection("ConnectionString").Value;
-            //var pass = configuration.GetSection("AppConfig").GetSection("pass").Value;
+            var scrkey = configuration.GetSection("AppConfig").GetSection("YAuthSourceKey").Value;
+            var keyval = configuration.GetSection("AppConfig").GetSection("YAuthSourceValue").Value;
+            string srapidapikey = context.HttpContext.Request.Headers[scrkey];
+            if (keyval == srapidapikey)
+            {
+                context.HttpContext.Session.SetString("mbadtanent", srapidapikey);
+                return;
+            }
+            ReturnUnauthorizedResult(context);
 
-            return;
         }
-        
+
+        private static void ReturnUnauthorizedResult(AuthorizationFilterContext context)
+        {
+            // Return 401 and a basic authentication challenge (causes browser to show login dialog)
+            context.HttpContext.Response.Headers["WWW-Authenticate"] = $"Basic realm=\"{""}\"";
+            context.Result = new UnauthorizedResult();
+        }
+
+
 
     }
 }
